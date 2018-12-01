@@ -88,7 +88,6 @@ class EmcDns {
 		~EmcDns();
 
 		void Run();
-
 	private:
 		static void StatRun(void *p);
 		int  HandlePacket();
@@ -101,14 +100,7 @@ class EmcDns {
 		int  Fill_RD_DName(char *txt, uint8_t mxsz, int8_t txtcor); // return ref to name
 		int  TryMakeref(uint16_t label_ref);
 
-		// Handle Special function - phone number in the E.164 format
-		// to support ENUM service
-		int SpfunENUM(uint8_t len, uint8_t **domain_start, uint8_t **domain_end);
-		// Generate answewr for found EMUM NVS record
-		void Answer_ENUM(const char *q_str);
-		void HandleE2U(char *e2u);
-		bool CheckEnumSig(const char *q_str, char *sig_str);
-		void AddTF(char *tf_tok);
+		void AddTollFree(char *tf_tok);
 		bool CheckDAP(uint32_t ip_addr, uint32_t packet_size);
 
 		inline void Out2(uint16_t x) { x = htons(x); memcpy(m_snd, &x, 2); m_snd += 2; }

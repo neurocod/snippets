@@ -211,7 +211,7 @@ EmcDns::EmcDns(const char *bind_ip, uint16_t port_no,
 
 	m_status = 1; // Active, and maybe download
 } // EmcDns::EmcDns
-void EmcDns::AddTF(char *tf_tok) {
+void EmcDns::AddTollFree(char *tf_tok) {
 	// Skip comments and empty lines
 	if(tf_tok[0] < '0')
 		return;
@@ -233,7 +233,7 @@ void EmcDns::AddTF(char *tf_tok) {
 
 	if(m_verbose > 3)
 		LogPrintf("\tEmcDns::AddTF: Added token [%s] %u:%u\n", tf_tok, m_tollfree.size(), m_tollfree.back().e2u.size());
-} // EmcDns::AddTF
+}
 EmcDns::~EmcDns() {
 	// reset current object to initial state
 	CloseSocket(m_sockfd);
@@ -852,170 +852,10 @@ bool EmcDns::CheckDAP(uint32_t ip_addr, uint32_t packet_size) {
 	return rc;
 } // EmcDns::CheckDAP 
 
-// Handle Special function - phone number in the E.164 format
-// to support ENUM service
-int EmcDns::SpfunENUM(uint8_t len, uint8_t **domain_start, uint8_t **domain_end) {
-	int dom_length = domain_end - domain_start;
-	const char *tld = (const char*)domain_end[-1];
-
-	if(m_verbose > 3)
-		LogPrintf("\tEmcDns::SpfunENUM: Domain=[%s] N=%u TLD=[%s] Len=%u\n",
-				  (const char*)*domain_start, dom_length, tld, len);
-
-	do {
-		if(dom_length < 2)
-			break; // no domains for phone number - NXDOMAIN
-
-		if(m_verifiers.empty() && m_tollfree.empty())
-			break; // no verifier - all ENUMs untrusted
-
-		// convert reversed domain record to ITU-T number
-		char itut_num[68], *pitut = itut_num, *pitutend = itut_num + len;
-		for(const uint8_t *p = domain_end[-1]; --p >= *domain_start; )
-			if(*p >= '0' && *p <= '9') {
-				*pitut++ = *p;
-				if(pitut >= pitutend)
-					break;
-			}
-		*pitut = 0; // EOLN at phone number end
-
-		if(pitut == itut_num)
-			break; // Empty phone number - NXDOMAIN
-
-		if(m_verbose > 3)
-			LogPrintf("\tEmcDns::SpfunENUM: ITU-T num=[%s]\n", itut_num);
-
-		// Itrrate all available ENUM-records, and build joined answer from them
-		if(!m_verifiers.empty()) {
-			for(int16_t qno = 0; qno >= 0; qno++) {
-				char q_str[100];
-				sprintf(q_str, "%s:%s:%u", tld, itut_num, qno);
-				if(m_verbose > 1)
-					LogPrintf("\tEmcDns::SpfunENUM Search(%s)\n", q_str);
-
-				string value;
-				if(!hooks->getNameValue(string(q_str), value))
-					break;
-
-				strcpy(m_value, value.c_str());
-				Answer_ENUM(q_str);
-			} // for
-		} // if
-
-		// If notheing found in the ENUM - try to search in the Toll-Free
-		m_ttl = 24 * 3600; // 24h by default
-		boost::xpressive::smatch nameparts;
-		for(vector<TollFree>::const_iterator tf = m_tollfree.begin();
-			m_hdr->ANCount == 0 && tf != m_tollfree.end();
-			tf++) {
-			bool matched = regex_match(string(itut_num), nameparts, tf->regex);
-			// bool matched = regex_search(string(itut_num), nameparts, tf->regex);
-			if(m_verbose > 3)
-				LogPrintf("\tEmcDns::SpfunENUM TF-match N=[%s] RE=[%s] -> %u\n", itut_num, tf->regex_str.c_str(), matched);
-			if(matched)
-				for(vector<string>::const_iterator e2u = tf->e2u.begin(); e2u != tf->e2u.end(); e2u++)
-					HandleE2U(strcpy(m_value, e2u->c_str()));
-		} // tf processing
-
-		if(m_hdr->ANCount)
-			return 0; // if collected some answers - OK
-
-	} while(false);
-
-	return 3; // NXDOMAIN
-} // EmcDns::SpfunENUM
-
 #define ENC3(a, b, c) (a | (b << 8) | (c << 16))
 
-// Generate answewr for found EMUM NVS record
-void EmcDns::Answer_ENUM(const char *q_str) {
-	char *str_val = m_value;
-	const char *pttl;
-	char *e2u[VAL_SIZE / 4]; // 20kb max input, and min 4 bytes per token
-	uint16_t e2uN = 0;
-	bool sigOK = false;
-
-	m_ttl = 24 * 3600; // 24h by default
-
-	// Tokenize lines in the NVS-value.
-	// There can be prefixes SIG=, TTL=, E2U
-	while(char *tok = strsep(&str_val, "\n\r"))
-		switch((*(uint32_t*)tok & 0xffffff) | 0x202020) {
-		case ENC3('e', '2', 'u'):
-			e2u[e2uN++] = tok;
-			continue;
-
-		case ENC3('t', 't', 'l'):
-			pttl = strchr(tok + 3, '=');
-			if(pttl)
-				m_ttl = atoi(pttl + 1);
-			continue;
-
-		case ENC3('s', 'i', 'g'):
-			if(!sigOK)
-				sigOK = CheckEnumSig(q_str, strchr(tok + 3, '='));
-			continue;
-
-		default:
-			continue;
-		} // while + switch
-
-	if(!sigOK)
-		return; // This ENUM-record does not contain a valid signature
-
-	// Generate ENUM-answers here
-	for(uint16_t e2undx = 0; e2undx < e2uN; e2undx++)
-		if(m_snd < m_bufend - 24)
-			HandleE2U(e2u[e2undx]);
-
-}
 void EmcDns::OutS(const char *p) {
 	int len = strlen(strcpy((char *)m_snd + 1, p));
 	*m_snd = len;
 	m_snd += len + 1;
-}
-// Generate ENUM-answers for a single E2U entry
-// E2U+sip=100|10|!^(.*)$!sip:17771234567@in.callcentric.com!
-void EmcDns::HandleE2U(char *e2u) {
-	char *data = strchr(e2u, '=');
-	if(data == NULL)
-		return;
-
-	// Cleanum sufix for service; Service started from E2U
-	for(char *p = data; *--p <= 040; *p = 0) {}
-
-	unsigned int ord, pref;
-	char re[VAL_SIZE];
-
-	*data++ = 0; // Remove '='
-
-	if(sscanf(data, "%u | %u | %s", &ord, &pref, re) != 3)
-		return;
-
-	if(m_verbose > 3)
-		LogPrintf("\tEmcDns::HandleE2U: Parsed: %u %u %s %s\n", ord, pref, e2u, re);
-
-	if(m_snd + strlen(re) + strlen(e2u) + 24 >= m_bufend)
-		return;
-
-	Out2(m_label_ref);
-	Out2(0x23); // NAPTR record
-	Out2(1); //  INET
-	Out4(m_ttl);
-	uint8_t *snd0 = m_snd; m_snd += 2;
-	Out2(ord);
-	Out2(pref);
-	OutS("u");
-	OutS(e2u);
-	OutS(re);
-	*m_snd++ = 0;
-
-	uint16_t len = m_snd - snd0 - 2;
-	*snd0++ = len >> 8;
-	*snd0++ = len;
-
-	m_hdr->ANCount++;
-}
-bool EmcDns::CheckEnumSig(const char *q_str, char *sig_str) {
-	return true;
 }

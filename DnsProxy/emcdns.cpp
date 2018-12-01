@@ -3,12 +3,26 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <QThread>
 
 #include <string.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <ctype.h>
+typedef u_int SOCKET;
+#include "errno.h"
+#define WSAGetLastError()   errno
+#define WSAEINVAL           EINVAL
+#define WSAEALREADY         EALREADY
+#define WSAEWOULDBLOCK      EWOULDBLOCK
+#define WSAEMSGSIZE         EMSGSIZE
+#define WSAEINTR            EINTR
+#define WSAEINPROGRESS      EINPROGRESS
+#define WSAEADDRINUSE       EADDRINUSE
+#define WSAENOTSOCK         EBADF
+#define INVALID_SOCKET      (SOCKET)(~0)
+#define SOCKET_ERROR        -1
 
 #include "emcdns.h"
 #include "EmcStuff.h"
@@ -30,8 +44,7 @@
 
 EmcDns::EmcDns(const char *bind_ip, uint16_t port_no,
 			   const char *gw_suffix, const char *allowed_suff, const char *local_fname,
-			   uint32_t dapsize, uint32_t daptreshold,
-			   const char *enums, const char *tollfree, uint8_t verbose)
+			   uint32_t dapsize, uint32_t daptreshold, uint8_t verbose)
 	: m_status(-1), m_thread(StatRun, this) {
 
 	// Clear vars [m_hdr..m_verbose)
@@ -109,19 +122,6 @@ EmcDns::EmcDns(const char *bind_ip, uint16_t port_no,
 
 	if(m_value == NULL)
 		throw runtime_error("EmcDns::EmcDns: Cannot allocate buffer");
-
-	// Temporary use m_value for parse enum-verifiers and toll-free lists, if exist
-
-	if(enums && *enums) {
-		char *str = strcpy(m_value, enums);
-		Verifier empty_ver;
-		while(char *p_tok = strsep(&str, "|,"))
-			if(*p_tok) {
-				if(m_verbose > 5)
-					LogPrintf("\tEmcDns::EmcDns: enumtrust=%s\n", p_tok);
-				m_verifiers[string(p_tok)] = empty_ver;
-			}
-	} // ENUMs completed
 
 	// Assign data buffers inside m_value hyper-array
 	m_buf    = (uint8_t *)(m_value + VAL_SIZE);
@@ -202,42 +202,24 @@ EmcDns::EmcDns(const char *bind_ip, uint16_t port_no,
 
 	// Hack - pass TF file list through m_value to HandlePacket()
 
-	if(tollfree && *tollfree) {
-		if(m_verbose > 3)
-			LogPrintf("\tEmcDns::EmcDns: Setup deferred toll-free=%s\n", tollfree);
-		strcpy(m_value, tollfree);
-	} else
-		m_value[0] = 0;
+	m_value[0] = 0;
 
 	m_status = 1; // Active, and maybe download
 } // EmcDns::EmcDns
-void EmcDns::AddTollFree(char *tf_tok) {
-	// Skip comments and empty lines
-	if(tf_tok[0] < '0')
-		return;
+bool CloseSocket(SOCKET& hSocket)
+{
+	if (hSocket == INVALID_SOCKET)
+		return false;
 
-	// Clear TABs and SPs at the end of the line
-	char *end = strchr(tf_tok, 0);
-	while(*--end <= 040) {
-		*end = 0;
-		if(end <= tf_tok)
-			return;
-	}
-
-	if(tf_tok[0] == '=') {
-		if(tf_tok[1])
-			m_tollfree.push_back(TollFree(tf_tok + 1));
-	} else
-		if(!m_tollfree.empty())
-			m_tollfree.back().e2u.push_back(string(tf_tok));
-
-	if(m_verbose > 3)
-		LogPrintf("\tEmcDns::AddTF: Added token [%s] %u:%u\n", tf_tok, m_tollfree.size(), m_tollfree.back().e2u.size());
+	int ret = close(hSocket);
+	hSocket = INVALID_SOCKET;
+	return ret != SOCKET_ERROR;
 }
+
 EmcDns::~EmcDns() {
 	// reset current object to initial state
 	CloseSocket(m_sockfd);
-	MilliSleep(100); // Allow 0.1s my thread to exit
+	QThread::msleep(100); // Allow 0.1s my thread to exit
 	// m_thread.join();
 	free(m_value);
 	free(m_dap_ht);
@@ -255,7 +237,7 @@ void EmcDns::Run() {
 	if(m_verbose > 2) LogPrintf("EmcDns::Run: started\n");
 
 	while(m_status < 0) // not initied yet
-		MilliSleep(133);
+		QThread::msleep(133);
 
 	for( ; ; ) {
 		m_addrLen = sizeof(m_clientAddress);
@@ -319,36 +301,7 @@ int EmcDns::HandlePacket() {
 			m_hdr->Bits |= 4; // Not implemented; handle standard query only
 			break;
 		}
-
-		if(m_status) {
-			if((m_status = IsInitialBlockDownload()) != 0) {
-				m_hdr->Bits |= 2; // Server failure - not available valid nameindex DB yet
-				break;
-			} else {
-				// Fill deferred toll-free default entries
-				char *tf_str = m_value;
-				// Iterate the list of Toll-Free fnames; can be fnames and NVS records
-				while(char *tf_fname = strsep(&tf_str, "|")) {
-					if(m_verbose > 3)
-						LogPrintf("\tEmcDns::HandlePacket: handle deferred toll-free=%s\n", tf_fname);
-					if(tf_fname[0] == '@') { // this is NVS record
-						string value;
-						if(hooks->getNameValue(string(tf_fname + 1), value)) {
-							char *tf_val = strcpy(m_value, value.c_str());
-							while(char *tf_tok = strsep(&tf_val, "\r\n"))
-								AddTF(tf_tok);
-						}
-					} else { // This is file
-						FILE *tf = fopen(tf_fname, "r");
-						if(tf != NULL) {
-							while(fgets(m_value, VAL_SIZE, tf))
-								AddTF(m_value);
-							fclose(tf);
-						}
-					} // if @
-				} // while tf_name
-			} // m_status #2
-		} // m_status #1
+		//m_hdr->Bits |= 2; // Server failure - not available valid nameindex DB yet
 
 		// Handle questions here
 		for(uint16_t qno = 0; qno < m_hdr->QDCount && m_snd < m_bufend; qno++) {
@@ -500,12 +453,6 @@ uint16_t EmcDns::HandleQuery() {
 					return 3; // Reached EndOfList, so NXDOMAIN
 				}
 			} while(m_ht_offset[pos] < 0 || strcmp((const char *)p, m_allowed_base + (m_ht_offset[pos] & ~ENUM_FLAG)) != 0);
-
-			// ENUM SPFUN works only if TLD-filter is active
-			if(m_ht_offset[pos] & ENUM_FLAG)
-				return SpfunENUM(m_allowed_base[(m_ht_offset[pos] & ~ENUM_FLAG) - 1], domain_ndx, domain_ndx_p);
-
-
 		} // if(m_allowed_qty)
 
 		uint8_t **cur_ndx_p, **prev_ndx_p = domain_ndx_p - 2;
@@ -785,12 +732,12 @@ int EmcDns::Search(uint8_t *key) {
 		LogPrintf("EmcDns::Search(%s)\n", key);
 
 	string value;
-	if (!hooks->getNameValue(string("dns:") + (const char *)key, value))
+	//if (!hooks->getNameValue(string("dns:") + (const char *)key, value))
 		return 0;
 
 	strcpy(m_value, value.c_str());
 	return 1;
-} //  EmcDns::Search
+}
 
 int EmcDns::LocalSearch(const uint8_t *key, uint8_t pos, uint8_t step) {
 	if(m_verbose > 1)

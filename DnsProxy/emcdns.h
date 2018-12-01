@@ -20,7 +20,6 @@ typedef u_int SOCKET;
 #include <string>
 #include <map>
 #include <boost/thread.hpp>
-#include <boost/xpressive/xpressive_dynamic.hpp>
 
 using namespace std;
 
@@ -68,22 +67,12 @@ struct Verifier {
 }; // 72 bytes = 18 words
 */
 
-struct TollFree {
-	TollFree(const char *re) :
-		regex(boost::xpressive::sregex::compile(string(re))), regex_str(re)
-	{}
-	boost::xpressive::sregex	regex;
-	string			regex_str;
-	vector<string>		e2u;
-};
-
 class EmcDns {
 	public:
 		EmcDns(const char *bind_ip, uint16_t port_no,
 			   const char *gw_suffix, const char *allowed_suff,
 			   const char *local_fname,
 			   uint32_t dapsize, uint32_t daptreshold,
-			   const char *enums, const char *tollfree,
 			   uint8_t verbose);
 		~EmcDns();
 
@@ -132,5 +121,4 @@ class EmcDns {
 		int8_t    m_status;
 		boost::thread m_thread;
 		//map<string, Verifier> m_verifiers;
-		vector<TollFree>      m_tollfree;
 }; // class EmcDns

@@ -1,17 +1,10 @@
-#ifndef EMCDNS_H
-#define EMCDNS_H
-
+#pragma once
 #include <string>
 #include <map>
-
 #include <boost/thread.hpp>
 #include <boost/xpressive/xpressive_dynamic.hpp>
-
-using namespace std;
-
-
 #include "pubkey.h"
-
+using namespace std;
 
 #define EMCDNS_PORT		5335
 #define EMCDNS_DAPBLOOMSTEP	3				// 3 steps in bloom filter
@@ -131,6 +124,3 @@ class EmcDns {
     map<string, Verifier> m_verifiers;
     vector<TollFree>      m_tollfree;
 }; // class EmcDns
-
-#endif // EMCDNS_H
-

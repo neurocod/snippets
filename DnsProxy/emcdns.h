@@ -1,9 +1,27 @@
 #pragma once
+//______________
+//TODO check for redundant headers
+#include <ifaddrs.h>
+#include <sys/fcntl.h>
+#include <sys/mman.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <net/if.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <limits.h>
+#include <netdb.h>
+#include <unistd.h>
+typedef u_int SOCKET;
+//________________
 #include <string>
 #include <map>
 #include <boost/thread.hpp>
 #include <boost/xpressive/xpressive_dynamic.hpp>
-#include "pubkey.h"
+
 using namespace std;
 
 #define EMCDNS_PORT		5335
@@ -41,14 +59,14 @@ struct DNSAP {		// DNS Amplifier Protector ExpDecay structure
   uint16_t timestamp;	// Time in 64s ticks
   uint16_t temp;	// ExpDecay temperature
 } __attribute__((packed));
-
+/*
 struct Verifier {
     Verifier() : mask(VERMASK_NEW) {}	// -1 == uninited, neg != -1 == cant fetch
     int32_t  mask;		// Signature Revocation List mask
     string   srl_tpl;		// Signature Revocation List template
-    CKeyID   keyID;		// Key for verify message
+	CKeyID   keyID;		// uint160 Key for verify message
 }; // 72 bytes = 18 words
-
+*/
 
 struct TollFree {
     TollFree(const char *re) :
@@ -121,6 +139,6 @@ class EmcDns {
 
     int8_t    m_status;
     boost::thread m_thread;
-    map<string, Verifier> m_verifiers;
+	//map<string, Verifier> m_verifiers;
     vector<TollFree>      m_tollfree;
 }; // class EmcDns

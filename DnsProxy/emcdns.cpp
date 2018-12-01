@@ -1,23 +1,3 @@
-/*
- * Simple DNS server for EmerCoin project
- *
- * Lookup for names like "dns:some-nake" in the local nameindex database.
- * Database is updates from blockchain, and keeps NMC-transactions.
- *
- * Supports standard RFC1034 UDP DNS protocol only
- *
- * Supported fields: A, AAAA, NS, PTR, MX, TXT, CNAME
- * Does not support: SOA, WKS, SRV
- * Does not support recursive query, authority zone and namezone transfers.
- * 
- *
- * Author: maxihatop
- *
- * This code can be used according BSD license:
- * http://en.wikipedia.org/wiki/BSD_licenses
- *
- */
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -26,23 +6,14 @@
 
 #include <string.h>
 
-#ifdef WIN32
-#include <winsock2.h>
-#else
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#endif
-
 #include <ctype.h>
 
-#include "namecoin.h"
-#include "util.h"
 #include "emcdns.h"
-#include "random.h"
-#include "validation.h"
-#include "base58.h"
-#include "netbase.h"
-#include "emcdns.h"
+//#include "validation.h"
+//#include "base58.h"
+//#include "netbase.h"
 
 #define BUF_SIZE (512 + 512)
 #define MAX_OUT  512	// Old DNS restricts UDP to 512 bytes
@@ -55,6 +26,51 @@
 
 // HT offset contains it for ENUM SPFUN
 #define ENUM_FLAG	(1 << 14)
+
+/*---------------------------------------------------*/
+
+#ifdef WIN32
+int inet_pton(int af, const char *src, void *dst)
+{
+  struct sockaddr_storage ss;
+  int size = sizeof(ss);
+  char src_copy[INET6_ADDRSTRLEN+1];
+
+  ZeroMemory(&ss, sizeof(ss));
+  /* stupid non-const API */
+  strncpy (src_copy, src, INET6_ADDRSTRLEN+1);
+  src_copy[INET6_ADDRSTRLEN] = 0;
+
+  if (WSAStringToAddress(src_copy, af, NULL, (struct sockaddr *)&ss, &size) == 0) {
+    switch(af) {
+      case AF_INET:
+    *(struct in_addr *)dst = ((struct sockaddr_in *)&ss)->sin_addr;
+    return 1;
+      case AF_INET6:
+    *(struct in6_addr *)dst = ((struct sockaddr_in6 *)&ss)->sin6_addr;
+    return 1;
+    }
+  }
+  return 0;
+}
+
+char *strsep(char **s, const char *ct)
+{
+    char *sstart = *s;
+    char *end;
+
+    if (sstart == NULL)
+        return NULL;
+
+    end = strpbrk(sstart, ct);
+    if (end)
+        *end++ = '\0';
+    *s = end;
+    return sstart;
+}
+#endif
+
+/*---------------------------------------------------*/
 
 EmcDns::EmcDns(const char *bind_ip, uint16_t port_no,
 	  const char *gw_suffix, const char *allowed_suff, const char *local_fname, 

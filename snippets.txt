@@ -3,6 +3,12 @@ set constantshow
 set mouse
 set linenumbers
 set smooth
+set titlecolor brightwhite,blue
+set statuscolor brightwhite,green
+set selectedcolor brightwhite,magenta
+set numbercolor white
+set keycolor cyan
+set functioncolor green
 
 .bashrc
 alias l='ls -CF --hyperlink  --group-directories-first'

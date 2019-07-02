@@ -1,4 +1,5 @@
-alias l='ls -CF --hyperlink  --group-directories-first'
+alias l='ls -CFa --hyperlink --group-directories-first'
+# MacOS: alias l='ls -CFGa'
 alias cdd='cd ..'
 
 # fgrep - fixed string grep

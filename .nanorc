@@ -1,0 +1,13 @@
+# https://www.nano-editor.org/dist/v2.9/nanorc.5.html
+# and https://github.com/scopatz/nanorc
+
+set constantshow
+set mouse
+set linenumbers
+set smooth
+set titlecolor brightwhite,blue
+set statuscolor brightwhite,green
+set selectedcolor brightwhite,magenta
+set numbercolor white
+set keycolor cyan
+set functioncolor green

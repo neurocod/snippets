@@ -22,6 +22,9 @@ alias gpr='git pull --rebase'
 alias gpo='git pull origin'
 alias gsi='git submodule init'
 alias gsu='git submodule update'
+gcb() {
+    git checkout -b "$1" origin/"$1"
+}
 
 #nnn file manager https://github.com/jarun/nnn
 #snippet modified from https://github.com/jarun/nnn/tree/master/misc/quitcd

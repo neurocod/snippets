@@ -1,3 +1,7 @@
+#one-time setup:
+#brew install ranger
+#brew install mc
+#brew install nano
 alias aliases='nano $HOME/.bash_profile'
 alias aliases2='source $HOME/.bash_profile'
 git_branch() {
@@ -8,6 +12,7 @@ export PS1="\[\e[38;5;051;48;5;233m\]\u@\h \w\[\e[0m\]$(git_branch)$ "
 export EDITOR=/usr/local/bin/nano
 #C=multicolumn output, F=slash after dir, G=coloried, a=with dots at start
 alias l='ls -CFGa'
+alias ls='ls -CFGa'
 alias cdd='cd ..'
 #if remote desktop can't type home sign:
 alias cdh='cd $HOME'
@@ -15,7 +20,7 @@ alias gs='git status'
 alias gpr='git pull --rebase'
 alias gsi='git submodule init'
 alias gsu='git submodule update'
-
+alias r='source ranger'
 export NNN_TMPFILE=$HOME/.config/nnn/.lastd
 n()
 {

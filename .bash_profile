@@ -13,6 +13,10 @@ export EDITOR=/usr/local/bin/nano
 #C=multicolumn output, F=slash after dir, G=coloried, a=with dots at start
 alias l='ls -CFGa'
 alias ls='ls -CFGa'
+mkcd() {
+  mkdir $1
+  cd $1
+}
 alias cdd='cd ..'
 #if remote desktop can't type home sign:
 alias cdh='cd $HOME'

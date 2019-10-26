@@ -13,6 +13,7 @@ git_branch() {
 export PS1="\[\e[38;5;051;48;5;233m\]\u@\h \w\[\e[0m\]$(git_branch)$ "
 export EDITOR=/usr/local/bin/nano
 #C=multicolumn output, F=slash after dir, G=coloried, a=with dots at start
+alias o='open'
 alias l='ls -CFGa'
 alias ls='ls -CFGa'
 mkcd() {
@@ -27,6 +28,7 @@ alias gpr='git pull --rebase'
 alias gsi='git submodule init'
 alias gsu='git submodule update'
 alias r='source ranger'
+
 export NNN_TMPFILE=$HOME/.config/nnn/.lastd
 n() {
     #i = interactive, d=show hidden files (keyboard: dot)
@@ -38,6 +40,22 @@ n() {
     fi
 }
 
+mc() {
+	MC_USER=`id | sed 's/[^(]*(//;s/).*//'`
+	MC_PWD_FILE="${TMPDIR-/tmp}/mc-$MC_USER/mc.pwd.$$"
+	/usr/local/bin/mc -P "$MC_PWD_FILE" "$@"
+
+	if test -r "$MC_PWD_FILE"; then
+	        MC_PWD="`cat "$MC_PWD_FILE"`"
+	        if test -n "$MC_PWD" && test -d "$MC_PWD"; then
+	                cd "$MC_PWD"
+	        fi
+	        unset MC_PWD
+	fi
+
+	rm -f "$MC_PWD_FILE"
+	unset MC_PWD_FILE
+}
 #without this MC shows erros like this: Warning: Failed to set locale category LC_NUMERIC to en_RU.
 export LC_COLLATE="en_US.UTF-8"
 export LC_CTYPE="en_US.UTF-8"

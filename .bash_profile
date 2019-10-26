@@ -2,6 +2,8 @@
 #brew install ranger
 #brew install mc
 #brew install nano
+#ranger --copy-config=all #creates config; set show_hidden_files true there
+alias o='open'
 alias aliases='nano $HOME/.bash_profile'
 alias aliases2='source $HOME/.bash_profile'
 git_branch() {
@@ -26,8 +28,7 @@ alias gsi='git submodule init'
 alias gsu='git submodule update'
 alias r='source ranger'
 export NNN_TMPFILE=$HOME/.config/nnn/.lastd
-n()
-{
+n() {
     #i = interactive, d=show hidden files (keyboard: dot)
     nnn -id "$@"
 

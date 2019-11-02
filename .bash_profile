@@ -1,34 +1,36 @@
+#!/bin/bash
 #one-time setup:
 #brew install ranger
+#ranger --copy-config=all #creates config; set show_hidden_files true there
 #brew install mc
 #brew install nano
-#ranger --copy-config=all #creates config; set show_hidden_files true there
-alias o='open'
+#brew install coreutils
+mkcd() {
+  mkdir $1
+  cd $1
+}
 alias aliases='nano $HOME/.bash_profile'
 alias aliases2='source $HOME/.bash_profile'
+alias o='open'
 git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 #  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
 export PS1="\[\e[38;5;051;48;5;233m\]\u@\h \w\[\e[0m\]$(git_branch)$ "
 export EDITOR=/usr/local/bin/nano
-#C=multicolumn output, F=slash after dir, G=coloried, a=with dots at start
-alias o='open'
-alias l='ls -CFGa'
-alias ls='ls -CFGa'
-mkcd() {
-  mkdir $1
-  cd $1
-}
+#C=multicolumn output, F=slash after dir, G=coloried, A=without dots at start
+#alias l='ls -CFGAa'
+alias l='gls --color --human-readable --group-directories-first -aAF'
 alias cdd='cd ..'
 #if remote desktop can't type home sign:
 alias cdh='cd $HOME'
 alias gs='git status'
+alias gc='git clone'
 alias gpr='git pull --rebase'
 alias gsi='git submodule init'
 alias gsu='git submodule update'
+alias ccat='pygmentize -g'
 alias r='source ranger'
-
 export NNN_TMPFILE=$HOME/.config/nnn/.lastd
 n() {
     #i = interactive, d=show hidden files (keyboard: dot)
@@ -39,7 +41,6 @@ n() {
             rm $NNN_TMPFILE
     fi
 }
-
 mc() {
 	MC_USER=`id | sed 's/[^(]*(//;s/).*//'`
 	MC_PWD_FILE="${TMPDIR-/tmp}/mc-$MC_USER/mc.pwd.$$"

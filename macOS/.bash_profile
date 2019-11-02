@@ -16,6 +16,9 @@ git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 #  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
+gcb() {
+    git checkout -b "$1" origin/"$1"
+}
 export PS1="\[\e[38;5;051;48;5;233m\]\u@\h \w\[\e[0m\]$(git_branch)$ "
 export EDITOR=/usr/local/bin/nano
 #C=multicolumn output, F=slash after dir, G=coloried, A=without dots at start

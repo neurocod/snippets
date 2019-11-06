@@ -1,74 +1,95 @@
-# This file is used to ignore files which are generated
-# ----------------------------------------------------------------------------
+# C++ objects and libs
 
-*~
-*.autosave
-*.a
-*.core
-*.moc
+*.slo
+*.lo
 *.o
-*.obj
-*.orig
-*.rej
+*.a
+*.la
+*.lai
 *.so
-*.so.*
-*_pch.h.cpp
-*_resource.rc
-*.qm
-.#*
-*.*#
-core
-!core/
-tags
-.DS_Store
-.directory
-*.debug
-Makefile*
-*.prl
-*.app
-moc_*.cpp
-ui_*.h
-qrc_*.cpp
-Thumbs.db
-*.res
-*.rc
-/.qmake.cache
-/.qmake.stash
+*.exe
+*.dll
+*.dylib
+
+# Qt-es
 build-*
+*.pro.user
+*.pro.user.*
+moc_*.cpp
+qrc_*.cpp
+Makefile
+*-build-*
 
-# qtcreator generated files
-*.pro.user*
-
-# xemacs temporary files
-*.flc
-
-# Vim temporary files
-.*.swp
-
-# Visual Studio generated files
-*.ib_pdb_index
-*.idb
-*.ilk
-*.pdb
-*.sln
-*.suo
-*.vcproj
-*vcproj.*.*.user
+# Visual Studio
+.vs
+*.VC.db
+*.VC.opendb
+*.user
+*.aps
+*.pch
+*.vsp
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
 *.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.ilk
+*.log
+*.lib
+*.sbr
 *.sdf
 *.opensdf
-*.vcxproj
-*vcxproj.*
+*.unsuccessfulbuild
+ipch/
+[Bb]in
+[Dd]ebug*/
+[Rr]elease*/
+packages
+*.nupkg
+*.ncrunchsolution
+*.dot[Cc]over
+Ankh.NoLoad
+# VS Upgrade stuff
+UpgradeLog.XML
+UpgradeLog.htm
+_UpgradeReport_Files/
 
-# MinGW generated files
-*.Debug
-*.Release
+# it’s better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
 
-# Python byte code
-*.pyc
+# Generated & temporary & auxiliary files.
+ipch
+*.sdf
+*.suo
+*.opensdf
+GeneratedFiles
+Release
+Debug
+*.pdb
+Client/translations/*.qm
+deploy/packages/*
 
-# Binaries
-# --------
-*.dll
-*.exe
+# Unix editors
+*~
+\#*\#
+.\#*
 
+# MacOS specific
+.DS_Store
+
+# Box2d
+imgui.ini
+libs/Box2D/other/

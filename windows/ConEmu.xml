@@ -374,10 +374,9 @@
 			<value name="AutoReloadEnvironment" type="hex" data="01"/>
 			<value name="EnvironmentSet" type="multi">
 				<line data="set PATH=%ConEmuBaseDir%\Scripts;%PATH%"/>
-				<line data='SET PROMPT=$E[32m$E]9;8;"USERNAME"$E\@$E]9;8;"COMPUTERNAME"$E\$S$E[92m$P$E[90m$_$E[90m$$$E[m$S'/>
 				<line data=" "/>
-				<line data="#set ConEmuPromptNames=YES"/>
-				<line data="#set ConEmuPromptNL=YES"/>
+				<line data="# set ConEmuPromptNames=NO"/>
+				<line data="# set ConEmuPromptNL=NO"/>
 				<line data="# set ConEmuSudoSplit=NO"/>
 				<line data="# set ConEmuSudoConfirm=NO"/>
 				<line data=" "/>
@@ -685,4 +684,3 @@
 		</key>
 	</key>
 </key>
-

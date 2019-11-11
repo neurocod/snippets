@@ -1,6 +1,7 @@
 #!/bin/bash
 #one-time setup:
 brew install ranger
+brew install highlight #for ranger
 ranger --copy-config=all#creates config
 #set show_hidden_files true;
 #set preview_script ~/.config/ranger/scope.sh

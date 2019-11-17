@@ -1,1 +1,1 @@
-ls --color %*
+ls --color --group-directories-first -AFC %*

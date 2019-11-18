@@ -14,7 +14,7 @@ alias cls='clear'
 git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 }
-PS1='$PS1$(git_branch)'
+PS1=$PS1'$(git_branch)'
 
 alias gs='git status'
 alias gс='git clone'

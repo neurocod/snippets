@@ -1,0 +1,15 @@
+AsmDude
+SolutionColor
+Solution Error Visualizer
+VSColorOutput
+GitExtensions
+Power Commands for Visual Studio
+Quick Launch tasks
+Fix mixed tabs
+Time stamp margin
+Productivity Power Tools 2017/2019
+Match margin
+Copy As Html
+Middle click scroll
+Peek Help
+align assignments

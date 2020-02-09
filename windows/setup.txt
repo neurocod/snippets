@@ -2,3 +2,6 @@ env variable:
 PROMPT=$E[1;32;40m$p$E[1;30;40m$g$E[0;37;40m
 #also orig from https://superuser.com/questions/427820/how-to-change-only-the-prompt-color-of-the-windows-command-line
 #PROMPT=$_$E[1;30;40m[$E[0;36;40m%computername% | %userdomain%\%username%$E[1;30;40m] $E[0;33;40m$M$_$E[35;40m$d$s$t$h$h$h$h$h$h$_$E[1;33;40m$p$_$E[1;30;40m$g $E[0;37;40m
+
+Computer\HKEY_CLASSES_ROOT\SystemFileAssociations\image\shell\edit\command
+	(default) = C:\Program Files\paint.net\PaintDotNet.exe "%1"

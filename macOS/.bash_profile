@@ -32,6 +32,7 @@ alias gc='git clone'
 alias gpr='git pull --rebase'
 alias gsi='git submodule init'
 alias gsu='git submodule update'
+alias gsr='git submodule update --recursive --init'
 alias ccat='pygmentize -g'
 alias r='source ranger'
 export NNN_TMPFILE=$HOME/.config/nnn/.lastd

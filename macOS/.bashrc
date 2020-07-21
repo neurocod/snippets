@@ -1,3 +1,3 @@
 #!/bin/bash
-#this is for MC to read aliase under maCOSs
+# This is for MC to read aliases under macOS
 source .bash_profile

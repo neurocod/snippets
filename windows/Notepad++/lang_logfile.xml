@@ -24,10 +24,10 @@
             <Keywords name="Folders in comment, open"></Keywords>
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
-            <Keywords name="Keywords1">ERROR FATAL Error error fatal failed Failed errors error_message</Keywords>
+            <Keywords name="Keywords1">ERROR FATAL Error error fatal failed Failed errors error_message critical</Keywords>
             <Keywords name="Keywords2">DEBUG debug</Keywords>
             <Keywords name="Keywords3">INFO info</Keywords>
-            <Keywords name="Keywords4">WARN warn</Keywords>
+            <Keywords name="Keywords4">WARN warn warning</Keywords>
             <Keywords name="Keywords5"></Keywords>
             <Keywords name="Keywords6"></Keywords>
             <Keywords name="Keywords7"></Keywords>

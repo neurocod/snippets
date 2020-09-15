@@ -2,6 +2,7 @@
 #main changes are:
 set constantshow
 set mouse
+set indicator
 set linenumbers
 set smooth
 set titlecolor brightwhite,blue

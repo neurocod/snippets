@@ -1,4 +1,20 @@
 echo off
+set LANG=ru_RU.UTF-8
+set LANGUAGE=
+set LC_CTYPE="ru_RU.UTF-8"
+set LC_NUMERIC="ru_RU.UTF-8"
+set LC_TIME="ru_RU.UTF-8"
+set LC_COLLATE="ru_RU.UTF-8"
+set LC_MONETARY="ru_RU.UTF-8"
+set LC_MESSAGES="ru_RU.UTF-8"
+set LC_PAPER="ru_RU.UTF-8"
+set LC_NAME="ru_RU.UTF-8"
+set LC_ADDRESS="ru_RU.UTF-8"
+set LC_TELEPHONE="ru_RU.UTF-8"
+set LC_MEASUREMENT="ru_RU.UTF-8"
+set LC_IDENTIFICATION="ru_RU.UTF-8"
+set LC_ALL=
+
 set MC_PWD_FILE=%tmp%\mc-workDir.txt
 "C:\Program Files (x86)\Midnight Commander\mc.exe" --printwd="%MC_PWD_FILE%"
 ::if exist "%MC_PWD_FILE%"  - can't make it work

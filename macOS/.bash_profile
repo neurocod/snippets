@@ -28,7 +28,7 @@ alias cdd='cd ..'
 #if remote desktop can't type home sign:
 alias cdh='cd $HOME'
 alias gs='git status'
-alias gc='git clone'
+alias gc='git clone --recurse-submodules'
 alias gpr='git pull --rebase'
 alias gsi='git submodule init'
 alias gsu='git submodule update'

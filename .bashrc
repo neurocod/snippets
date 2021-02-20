@@ -17,7 +17,7 @@ git_branch() {
 PS1=$PS1'$(git_branch)'
 
 alias gs='git status'
-alias gс='git clone'
+alias gс='git clone --recurse-submodules'
 alias gpr='git pull --rebase'
 alias gpo='git pull origin'
 alias gsi='git submodule init'

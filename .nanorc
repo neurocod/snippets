@@ -1,5 +1,5 @@
-#https://github.com/scopatz/nanorc
-#main changes are:
+# nanorc folder nearby: submodule cloned from https://github.com/scopatz/nanorc
+# this is customized file:
 set constantshow
 set mouse
 set indicator

@@ -1,0 +1,1 @@
+CertUtil -hashfile %* MD5
